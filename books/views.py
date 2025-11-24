@@ -6,7 +6,6 @@ from .forms import BookForm, ReadingSessionForm, CategoryForm
 
 def book_list(request):
     status_filter = request.GET.get('status')
-    # Order by category name first to make regroup work efficiently
     books = Book.objects.select_related('category').all().order_by('category__name', '-updated_at')
 
     if status_filter:
@@ -48,22 +47,28 @@ def book_detail(request, pk):
         if form.is_valid():
             session = form.save(commit=False)
             session.book = book
-            session.save()
             
-            # Update book status if completed
-            if book.pages_read >= book.total_pages:
-                book.status = 'COMPLETED'
-                book.save()
-                messages.success(request, '¡Felicidades! Has terminado el libro.')
-            elif book.status == 'PENDING' and book.pages_read > 0:
-                book.status = 'READING'
-                book.save()
-                messages.success(request, 'Sesión de lectura registrada.')
+            # Basic validation
+            if session.end_page > book.total_pages:
+                messages.error(request, f'La página no puede ser mayor al total ({book.total_pages}).')
             else:
-                messages.success(request, 'Sesión de lectura registrada.')
+                session.save()
+                
+                # Update book status
+                if session.end_page >= book.total_pages:
+                    book.status = 'COMPLETED'
+                    book.save()
+                    messages.success(request, '¡Felicidades! Has terminado el libro.')
+                elif book.status == 'PENDING' and session.end_page > 0:
+                    book.status = 'READING'
+                    book.save()
+                    messages.success(request, 'Progreso registrado.')
+                else:
+                    messages.success(request, 'Progreso registrado.')
                 
             return redirect('book_detail', pk=pk)
     else:
+        # Pre-fill with next logical page if possible, or just empty
         form = ReadingSessionForm()
 
     sessions = book.readingsession_set.all().order_by('-date', '-id')

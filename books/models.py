@@ -39,7 +39,8 @@ class Book(models.Model):
 
     @property
     def pages_read(self):
-        return self.readingsession_set.aggregate(total=models.Sum('pages_read'))['total'] or 0
+        # Return the highest end_page from sessions, or 0 if no sessions
+        return self.readingsession_set.aggregate(max_page=models.Max('end_page'))['max_page'] or 0
 
     @property
     def progress_percentage(self):
@@ -62,10 +63,10 @@ class Book(models.Model):
 
 class ReadingSession(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
-    pages_read = models.IntegerField(help_text="Páginas leídas en esta sesión")
+    end_page = models.IntegerField(help_text="Página hasta la que llegaste")
     duration_minutes = models.IntegerField(default=0, help_text="Tiempo leído en minutos")
     date = models.DateField(default=timezone.now)
     notes = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.book.title} - {self.pages_read} págs - {self.date}"
+        return f"{self.book.title} - Pág {self.end_page} - {self.date}"

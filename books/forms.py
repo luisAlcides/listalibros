@@ -17,9 +17,12 @@ class BookForm(forms.ModelForm):
 class ReadingSessionForm(forms.ModelForm):
     class Meta:
         model = ReadingSession
-        fields = ['pages_read', 'duration_minutes', 'date', 'notes']
+        fields = ['end_page', 'duration_minutes', 'date', 'notes']
+        labels = {
+            'end_page': '¿Hasta qué página llegaste?',
+        }
         widgets = {
-            'pages_read': forms.NumberInput(attrs={'class': 'w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500'}),
+            'end_page': forms.NumberInput(attrs={'class': 'w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500'}),
             'duration_minutes': forms.NumberInput(attrs={'class': 'w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500', 'placeholder': 'Minutos'}),
             'date': forms.DateInput(attrs={'type': 'date', 'class': 'w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500'}),
             'notes': forms.Textarea(attrs={'rows': 3, 'class': 'w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500'}),
