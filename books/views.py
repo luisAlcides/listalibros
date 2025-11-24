@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.db import models
 from django.db.models import Q
 from .models import Book, ReadingSession, Category
 from .forms import BookForm, ReadingSessionForm, CategoryForm
@@ -48,7 +49,6 @@ def book_detail(request, pk):
             session = form.save(commit=False)
             session.book = book
             
-            # Basic validation
             if session.end_page > book.total_pages:
                 messages.error(request, f'La página no puede ser mayor al total ({book.total_pages}).')
             else:
@@ -68,7 +68,6 @@ def book_detail(request, pk):
                 
             return redirect('book_detail', pk=pk)
     else:
-        # Pre-fill with next logical page if possible, or just empty
         form = ReadingSessionForm()
 
     sessions = book.readingsession_set.all().order_by('-date', '-id')
@@ -87,3 +86,56 @@ def delete_book(request, pk):
         messages.success(request, 'Libro eliminado.')
         return redirect('book_list')
     return redirect('book_detail', pk=pk)
+
+def edit_session(request, pk):
+    session = get_object_or_404(ReadingSession, pk=pk)
+    book = session.book
+    
+    if request.method == 'POST':
+        form = ReadingSessionForm(request.POST, instance=session)
+        if form.is_valid():
+            new_session = form.save(commit=False)
+            if new_session.end_page > book.total_pages:
+                messages.error(request, f'La página no puede ser mayor al total ({book.total_pages}).')
+            else:
+                new_session.save()
+                
+                # Recalculate book status based on the latest progress
+                # We need to check the MAX end_page of all sessions to update the book status correctly
+                max_page = book.readingsession_set.aggregate(max_page=models.Max('end_page'))['max_page'] or 0
+                
+                if max_page >= book.total_pages:
+                    book.status = 'COMPLETED'
+                elif max_page > 0:
+                    book.status = 'READING'
+                else:
+                    book.status = 'PENDING'
+                book.save()
+                
+                messages.success(request, 'Sesión actualizada.')
+                return redirect('book_detail', pk=book.pk)
+    else:
+        form = ReadingSessionForm(instance=session)
+    
+    return render(request, 'books/edit_session.html', {'form': form, 'session': session, 'book': book})
+
+def delete_session(request, pk):
+    session = get_object_or_404(ReadingSession, pk=pk)
+    book_pk = session.book.pk
+    if request.method == 'POST':
+        session.delete()
+        
+        # Recalculate status
+        book = Book.objects.get(pk=book_pk)
+        max_page = book.readingsession_set.aggregate(max_page=models.Max('end_page'))['max_page'] or 0
+        
+        if max_page >= book.total_pages:
+            book.status = 'COMPLETED'
+        elif max_page > 0:
+            book.status = 'READING'
+        else:
+            book.status = 'PENDING'
+        book.save()
+        
+        messages.success(request, 'Sesión eliminada.')
+    return redirect('book_detail', pk=book_pk)
