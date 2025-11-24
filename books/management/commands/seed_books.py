@@ -1,8 +1,9 @@
 from django.core.management.base import BaseCommand
+from django.contrib.auth.models import User
 from books.models import Book, Category
 
 class Command(BaseCommand):
-    help = 'Seeds the database with initial books'
+    help = 'Seeds the database with initial books for all users'
 
     def handle(self, *args, **kwargs):
         # Create categories
@@ -83,20 +84,33 @@ class Command(BaseCommand):
             ("Economía básica", "Thomas Sowell", "BIOGRAPHY", 704),
         ]
 
-        self.stdout.write('Seeding books...')
+        # Get all users
+        users = User.objects.all()
         
-        for title, author, cat_key, pages in books_data:
-            category = cat_objs.get(cat_key)
-            if not Book.objects.filter(title=title).exists():
-                Book.objects.create(
-                    title=title,
-                    author=author,
-                    category=category,
-                    total_pages=pages,
-                    status='PENDING'
-                )
-                self.stdout.write(self.style.SUCCESS(f'Created book: {title}'))
-            else:
-                self.stdout.write(self.style.WARNING(f'Book already exists: {title}'))
+        if not users.exists():
+            self.stdout.write(self.style.WARNING('No users found. Please create users first.'))
+            return
+
+        self.stdout.write(f'Seeding books for {users.count()} user(s)...')
         
-        self.stdout.write(self.style.SUCCESS('Successfully seeded books'))
+        for user in users:
+            self.stdout.write(f'\nProcessing user: {user.username}')
+            
+            for title, author, cat_key, pages in books_data:
+                category = cat_objs.get(cat_key)
+                
+                # Check if this user already has this book
+                if not Book.objects.filter(user=user, title=title).exists():
+                    Book.objects.create(
+                        user=user,
+                        title=title,
+                        author=author,
+                        category=category,
+                        total_pages=pages,
+                        status='PENDING'
+                    )
+                    self.stdout.write(self.style.SUCCESS(f'  ✓ Created book: {title}'))
+                else:
+                    self.stdout.write(self.style.WARNING(f'  - Book already exists: {title}'))
+        
+        self.stdout.write(self.style.SUCCESS('\nSuccessfully seeded books for all users'))

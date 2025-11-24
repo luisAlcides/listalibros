@@ -58,8 +58,9 @@
                 </div>
                 {% if user.is_authenticated %}
                 <div class="flex items-center space-x-4">
-                    <span class="text-gray-400 text-sm">Hola, <span class="text-white font-medium">{{ user.username
-                            }}</span></span>
+                    <span class="text-gray-400 text-sm">Hola, <span class="text-white font-medium">
+                            {{ user.username}}
+                        </span></span>
                     <a href="{% url 'logout' %}"
                         class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Cerrar
                         Sesión</a>
