@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Breadcrumb -->
+    <nav class="flex mb-8" aria-label="Breadcrumb">
+        <ol class="flex items-center space-x-4">
+            <li>
+                <div>
+                    <a href="{% url 'book_list' %}" class="text-gray-400 hover:text-gray-200">
+                        <svg class="flex-shrink-0 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                            fill="currentColor" aria-hidden="true">
+                            <path
+                                d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                        </svg>
+                        <span class="sr-only">Home</span>
+                    </a>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="flex-shrink-0 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <a href="{% url 'book_list' %}"
+                        class="ml-4 text-sm font-medium text-gray-400 hover:text-gray-200">Libros</a>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="flex-shrink-0 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <span class="ml-4 text-sm font-medium text-gray-200" aria-current="page">{{ book.title }}</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Info Column -->
+        <div class="lg:col-span-2 space-y-8">
+            <!-- Book Header -->
+            <div class="bg-gray-800 shadow rounded-lg overflow-hidden border border-gray-700">
+                <div class="p-6 sm:p-8">
+                    <div class="flex flex-col sm:flex-row">
+                        <div class="flex-shrink-0 mb-6 sm:mb-0 sm:mr-8">
+                            {% if book.cover_url %}
+                            <img class="h-48 w-32 object-cover rounded-lg shadow-md" src="{{ book.cover_url }}"
+                                alt="{{ book.title }}">
+                            {% else %}
+                            <div
+                                class="h-48 w-32 bg-gray-700 rounded-lg flex items-center justify-center text-gray-500 shadow-md">
+                                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                                    </path>
+                                </svg>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h1 class="text-3xl font-bold text-white mb-2">{{ book.title }}</h1>
+                                    <p class="text-xl text-indigo-400 mb-4">{{ book.author }}</p>
+                                </div>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
+                                    {% if book.status == 'READING' %}bg-yellow-900 text-yellow-200
+                                    {% elif book.status == 'COMPLETED' %}bg-green-900 text-green-200
+                                    {% else %}bg-gray-700 text-gray-300{% endif %}">
+                                    {{ book.get_status_display }}
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-4 mb-6">
+                                <div class="bg-gray-700/50 p-3 rounded-lg">
+                                    <span class="block text-xs text-gray-400 uppercase tracking-wide">Categoría</span>
+                                    <span class="block text-sm font-medium text-white">
+                                        {% if book.category %}{{ book.category.name }}{% else %}Sin Categoría{% endif %}
+                                    </span>
+                                </div>
+                                <div class="bg-gray-700/50 p-3 rounded-lg">
+                                    <span class="block text-xs text-gray-400 uppercase tracking-wide">Total
+                                        Páginas</span>
+                                    <span class="block text-sm font-medium text-white">{{ book.total_pages }}</span>
+                                </div>
+                                <div class="bg-gray-700/50 p-3 rounded-lg">
+                                    <span class="block text-xs text-gray-400 uppercase tracking-wide">Tiempo
+                                        Invertido</span>
+                                    <span class="block text-sm font-medium text-white">{{ book.total_time_read }}</span>
+                                </div>
+                            </div>
+
+                            <div class="relative pt-1">
+                                <div class="flex mb-2 items-center justify-between">
+                                    <div>
+                                        <span
+                                            class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-indigo-200 bg-indigo-900">
+                                            Progreso
+                                        </span>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-xs font-semibold inline-block text-indigo-200">
+                                            {{ book.progress_percentage }}%
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="overflow-hidden h-4 mb-4 text-xs flex rounded bg-gray-700">
+                                    <div style="width:{{ book.progress_percentage }}%"
+                                        class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-600 transition-all duration-500">
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-400">
+                                    Has leído <span class="text-white font-bold">{{ book.pages_read }}</span> de <span
+                                        class="text-white font-bold">{{ book.total_pages }}</span> páginas.
+                                    {% if book.pages_remaining > 0 %}
+                                    Te faltan <span class="text-white font-bold">{{ book.pages_remaining }}</span>.
+                                    {% else %}
+                                    ¡Completado!
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-700/30 px-6 py-4 border-t border-gray-700 flex justify-end">
+                    <form action="{% url 'delete_book' book.pk %}" method="POST"
+                        onsubmit="return confirm('¿Estás seguro de eliminar este libro?');">
+                        {% csrf_token %}
+                        <button type="submit" class="text-red-400 hover:text-red-300 text-sm font-medium">Eliminar
+                            Libro</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Reading History -->
+            <div class="bg-gray-800 shadow rounded-lg overflow-hidden border border-gray-700">
+                <div class="px-6 py-5 border-b border-gray-700">
+                    <h3 class="text-lg leading-6 font-medium text-white">Historial de Lectura</h3>
+                </div>
+                <div class="divide-y divide-gray-700">
+                    {% for session in sessions %}
+                    <div class="px-6 py-4 hover:bg-gray-700/50 transition-colors">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm font-medium text-indigo-300">
+                                    +{{ session.pages_read }} páginas
+                                </p>
+                                <p class="text-xs text-gray-500">{{ session.date|date:"d M Y" }}</p>
+                            </div>
+                            <div class="text-right">
+                                {% if session.duration_minutes > 0 %}
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-700 text-gray-300">
+                                    ⏱ {{ session.duration_minutes }} min
+                                </span>
+                                {% endif %}
+                                {% if session.notes %}
+                                <p class="text-sm text-gray-400 italic max-w-xs truncate mt-1">{{ session.notes }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="px-6 py-8 text-center text-gray-500 text-sm">
+                        No hay sesiones registradas aún.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar / Action Column -->
+        <div class="lg:col-span-1">
+            <div class="bg-gray-800 shadow rounded-lg border border-gray-700 sticky top-6">
+                <div class="px-6 py-5 border-b border-gray-700">
+                    <h3 class="text-lg leading-6 font-medium text-white">Registrar Avance</h3>
+                </div>
+                <div class="p-6">
+                    <form method="POST" class="space-y-4">
+                        {% csrf_token %}
+                        <div>
+                            <label for="{{ form.pages_read.id_for_label }}"
+                                class="block text-sm font-medium text-gray-300">
+                                Páginas leídas hoy
+                            </label>
+                            <div class="mt-1">
+                                {{ form.pages_read }}
+                            </div>
+                            {% if form.pages_read.errors %}
+                            <p class="text-red-400 text-xs mt-1">{{ form.pages_read.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <label for="{{ form.duration_minutes.id_for_label }}"
+                                class="block text-sm font-medium text-gray-300">
+                                Tiempo (minutos)
+                            </label>
+                            <div class="mt-1">
+                                {{ form.duration_minutes }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="{{ form.date.id_for_label }}" class="block text-sm font-medium text-gray-300">
+                                Fecha
+                            </label>
+                            <div class="mt-1">
+                                {{ form.date }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-300">
+                                Notas (opcional)
+                            </label>
+                            <div class="mt-1">
+                                {{ form.notes }}
+                            </div>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Registrar Sesión
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

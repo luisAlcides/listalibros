@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row justify-between items-center">
+        <h1 class="text-3xl font-bold text-white">Mis Libros</h1>
+        <div class="mt-4 sm:mt-0 flex space-x-2 bg-gray-800 p-1 rounded-lg">
+            <a href="{% url 'book_list' %}"
+                class="px-4 py-2 rounded-md text-sm font-medium transition-colors {% if not current_filter %}bg-indigo-600 text-white{% else %}text-gray-400 hover:text-white{% endif %}">Todos</a>
+            <a href="?status=READING"
+                class="px-4 py-2 rounded-md text-sm font-medium transition-colors {% if current_filter == 'READING' %}bg-indigo-600 text-white{% else %}text-gray-400 hover:text-white{% endif %}">Leyendo</a>
+            <a href="?status=PENDING"
+                class="px-4 py-2 rounded-md text-sm font-medium transition-colors {% if current_filter == 'PENDING' %}bg-indigo-600 text-white{% else %}text-gray-400 hover:text-white{% endif %}">Pendientes</a>
+            <a href="?status=COMPLETED"
+                class="px-4 py-2 rounded-md text-sm font-medium transition-colors {% if current_filter == 'COMPLETED' %}bg-indigo-600 text-white{% else %}text-gray-400 hover:text-white{% endif %}">Terminados</a>
+        </div>
+    </div>
+
+    {% regroup books by category as category_list %}
+
+    {% for category in category_list %}
+    <div class="mb-8">
+        <h2 class="text-xl font-bold text-indigo-400 mb-4 border-b border-gray-700 pb-2">
+            {% if category.grouper %}{{ category.grouper.name }}{% else %}Sin Categoría{% endif %}
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for book in category.list %}
+            <a href="{% url 'book_detail' book.pk %}" class="block group">
+                <div
+                    class="bg-gray-800 rounded-lg shadow-lg overflow-hidden border border-gray-700 transition-transform transform group-hover:-translate-y-1 group-hover:shadow-2xl">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                    {% if book.status == 'READING' %}bg-yellow-900 text-yellow-200
+                                    {% elif book.status == 'COMPLETED' %}bg-green-900 text-green-200
+                                    {% else %}bg-gray-700 text-gray-300{% endif %}">
+                                    {{ book.get_status_display }}
+                                </span>
+                                <h3
+                                    class="mt-2 text-xl font-semibold text-white group-hover:text-indigo-400 transition-colors">
+                                    {{ book.title }}</h3>
+                                <p class="text-sm text-gray-400">{{ book.author }}</p>
+                            </div>
+                            {% if book.cover_url %}
+                            <img src="{{ book.cover_url }}" alt="{{ book.title }}"
+                                class="h-16 w-12 object-cover rounded shadow-sm">
+                            {% else %}
+                            <div class="h-16 w-12 bg-gray-700 rounded flex items-center justify-center text-gray-500">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                                    </path>
+                                </svg>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mt-6">
+                            <div class="flex justify-between text-sm text-gray-400 mb-1">
+                                <span>Progreso</span>
+                                <span>{{ book.progress_percentage }}%</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2.5">
+                                <div class="bg-indigo-600 h-2.5 rounded-full"
+                                    style="width: {{ book.progress_percentage }}%"></div>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-500 text-right">
+                                {{ book.pages_read }} / {{ book.total_pages }} páginas
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-span-full text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+            </path>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-300">No hay libros</h3>
+        <p class="mt-1 text-sm text-gray-500">Comienza agregando un libro a tu colección.</p>
+        <div class="mt-6">
+            <a href="{% url 'add_book' %}"
+                class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                Agregar Libro
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
