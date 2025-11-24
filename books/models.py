@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -25,6 +26,7 @@ class Book(models.Model):
         ('COMPLETED', 'Terminado'),
     ]
 
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='books')
     title = models.CharField(max_length=200)
     author = models.CharField(max_length=200)
     total_pages = models.IntegerField(default=0)
