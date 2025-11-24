@@ -49,10 +49,18 @@ def logout_view(request):
 @login_required
 def book_list(request):
     status_filter = request.GET.get('status')
+    search_query = request.GET.get('q', '')
+    
     books = Book.objects.filter(user=request.user).select_related('category').order_by('category__name', '-updated_at')
 
     if status_filter:
         books = books.filter(status=status_filter)
+    
+    if search_query:
+        books = books.filter(
+            Q(title__icontains=search_query) | 
+            Q(author__icontains=search_query)
+        )
 
     # Calculate statistics
     total_books = Book.objects.filter(user=request.user).count()
@@ -62,6 +70,7 @@ def book_list(request):
     context = {
         'books': books,
         'current_filter': status_filter,
+        'search_query': search_query,
         'total_books': total_books,
         'completed_books': completed_books,
         'reading_books': reading_books,
@@ -81,6 +90,21 @@ def add_book(request):
     else:
         form = BookForm()
     return render(request, 'books/add_book.html', {'form': form})
+
+@login_required
+def edit_book(request, pk):
+    book = get_object_or_404(Book, pk=pk, user=request.user)
+    
+    if request.method == 'POST':
+        form = BookForm(request.POST, instance=book)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Libro actualizado exitosamente.')
+            return redirect('book_detail', pk=pk)
+    else:
+        form = BookForm(instance=book)
+    
+    return render(request, 'books/edit_book.html', {'form': form, 'book': book})
 
 @login_required
 def add_category(request):
