@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es" class="dark">
 
@@ -5,6 +6,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}BookTracker{% endblock %}</title>
+    <link rel="icon" type="image/jpeg" href="{% static 'logo.jpeg' %}">
+    <link rel="apple-touch-icon" href="{% static 'logo.jpeg' %}">
+    <link rel="manifest" href="{% url 'manifest' %}">
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="BookTracker">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -40,8 +48,9 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center">
-                    <a href="{% url 'book_list' %}" class="flex-shrink-0 text-indigo-500 font-bold text-xl">
-                        📚 BookTracker
+                    <a href="{% url 'book_list' %}" class="flex-shrink-0 flex items-center gap-2 text-indigo-500 font-bold text-xl">
+                        <img src="{% static 'logo.jpeg' %}" alt="BookTracker" width="36" height="36" class="rounded-lg object-cover" />
+                        <span>BookTracker</span>
                     </a>
                     {% if user.is_authenticated %}
                     <div class="hidden md:block">

@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.contrib import messages
 from django.db import models
 from django.db.models import Q, Count
@@ -232,3 +234,37 @@ def delete_session(request, pk):
         
         messages.success(request, 'Sesión eliminada.')
     return redirect('book_detail', pk=book_pk)
+
+
+def manifest(request):
+    """Web App Manifest: iconos e instalación PWA con URLs absolutas."""
+    icon_url = request.build_absolute_uri(staticfiles_storage.url('logo.jpeg'))
+    data = {
+        'name': 'BookTracker',
+        'short_name': 'BookTracker',
+        'description': 'Tu biblioteca personal de libros.',
+        'start_url': '/',
+        'scope': '/',
+        'display': 'standalone',
+        'background_color': '#111827',
+        'theme_color': '#4f46e5',
+        'icons': [
+            {
+                'src': icon_url,
+                'sizes': '512x512',
+                'type': 'image/jpeg',
+                'purpose': 'any',
+            },
+            {
+                'src': icon_url,
+                'sizes': '192x192',
+                'type': 'image/jpeg',
+                'purpose': 'any',
+            },
+        ],
+    }
+    return JsonResponse(
+        data,
+        json_dumps_params={'ensure_ascii': False},
+        content_type='application/manifest+json; charset=utf-8',
+    )
