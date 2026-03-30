@@ -162,7 +162,7 @@
                                     {% if session.duration_minutes > 0 %}
                                     <span
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-700 text-gray-300">
-                                        ⏱ {{ session.duration_minutes }} min
+                                        ⏱ {{ session.duration_minutes|floatformat:"-2" }} min
                                     </span>
                                     {% endif %}
                                     {% if session.notes %}

@@ -23,7 +23,7 @@ class ReadingSessionForm(forms.ModelForm):
         }
         widgets = {
             'end_page': forms.NumberInput(attrs={'class': 'w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500'}),
-            'duration_minutes': forms.NumberInput(attrs={'class': 'w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500', 'placeholder': 'Minutos'}),
+            'duration_minutes': forms.NumberInput(attrs={'class': 'w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500', 'placeholder': 'Minutos', 'step': 'any', 'min': '0'}),
             'date': forms.DateInput(attrs={'type': 'date', 'class': 'w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500'}),
             'notes': forms.Textarea(attrs={'rows': 3, 'class': 'w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500'}),
         }

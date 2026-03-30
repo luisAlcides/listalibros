@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -56,17 +58,35 @@ class Book(models.Model):
 
     @property
     def total_time_read(self):
-        minutes = self.readingsession_set.aggregate(total=models.Sum('duration_minutes'))['total'] or 0
-        hours = minutes // 60
+        raw = self.readingsession_set.aggregate(total=models.Sum('duration_minutes'))['total']
+        if raw is None:
+            minutes = Decimal('0')
+        else:
+            minutes = Decimal(str(raw))
+        if minutes == 0:
+            return '0m'
+
+        def fmt_mins(m):
+            m = m.normalize()
+            if m == m.to_integral():
+                return str(int(m))
+            return format(m, 'f').rstrip('0').rstrip('.')
+
+        hours = int(minutes // 60)
         mins = minutes % 60
         if hours > 0:
-            return f"{hours}h {mins}m"
-        return f"{mins}m"
+            return f'{hours}h {fmt_mins(mins)}m'
+        return f'{fmt_mins(mins)}m'
 
 class ReadingSession(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
     end_page = models.IntegerField(help_text="Página hasta la que llegaste")
-    duration_minutes = models.IntegerField(default=0, help_text="Tiempo leído en minutos")
+    duration_minutes = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        default=0,
+        help_text='Tiempo leído en minutos (admite decimales, p. ej. 12,5)',
+    )
     date = models.DateField(default=timezone.now)
     notes = models.TextField(blank=True, null=True)
 
