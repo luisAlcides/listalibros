@@ -4,7 +4,6 @@ from decimal import Decimal
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
-from django.contrib.staticfiles.storage import staticfiles_storage
 from django.contrib import messages
 from django.db import models
 from django.db.models import Q, Count, Sum
@@ -405,8 +404,17 @@ def delete_session(request, pk):
 
 
 def manifest(request):
-    """Web App Manifest: iconos e instalación PWA con URLs absolutas."""
-    icon_url = request.build_absolute_uri(staticfiles_storage.url('logo.jpeg'))
+    """Web App Manifest: usa el icono SVG de libro de la app."""
+    book_icon = (
+        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' "
+        "viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' "
+        "fill='%230b1020'/%3E%3Cpath d='M142 104h173a58 58 0 0 1 58 58v239H181a39 "
+        "39 0 0 1-39-39V104Z' fill='%236366f1'/%3E%3Cpath d='M142 104h156a58 58 0 "
+        "0 1 58 58v221H181a39 39 0 0 1-39-39V104Z' fill='%238b5cf6'/%3E%3Cpath "
+        "d='M176 138h122a34 34 0 0 1 34 34v181H181a39 39 0 0 0-39 39V138h34Z' "
+        "fill='%23f8fafc' fill-opacity='.92'/%3E%3Cpath d='M205 205h84M205 256h102M205 "
+        "307h67' stroke='%234f46e5' stroke-width='18' stroke-linecap='round'/%3E%3C/svg%3E"
+    )
     data = {
         'name': 'BookTracker',
         'short_name': 'BookTracker',
@@ -414,20 +422,20 @@ def manifest(request):
         'start_url': '/',
         'scope': '/',
         'display': 'standalone',
-        'background_color': '#111827',
-        'theme_color': '#4f46e5',
+        'background_color': '#070914',
+        'theme_color': '#0b1020',
         'icons': [
             {
-                'src': icon_url,
+                'src': book_icon,
                 'sizes': '512x512',
-                'type': 'image/jpeg',
-                'purpose': 'any',
+                'type': 'image/svg+xml',
+                'purpose': 'any maskable',
             },
             {
-                'src': icon_url,
+                'src': book_icon,
                 'sizes': '192x192',
-                'type': 'image/jpeg',
-                'purpose': 'any',
+                'type': 'image/svg+xml',
+                'purpose': 'any maskable',
             },
         ],
     }

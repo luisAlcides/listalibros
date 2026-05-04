@@ -6,8 +6,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>{% block title %}BookTracker{% endblock %}</title>
-    <link rel="icon" type="image/jpeg" href="{% static 'logo.jpeg' %}">
-    <link rel="apple-touch-icon" href="{% static 'logo.jpeg' %}">
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230b1020'/%3E%3Cpath d='M18 14h21a7 7 0 0 1 7 7v29H23a5 5 0 0 1-5-5V14Z' fill='%236366f1'/%3E%3Cpath d='M18 14h19a7 7 0 0 1 7 7v27H23a5 5 0 0 1-5-5V14Z' fill='%238b5cf6'/%3E%3Cpath d='M22 18h15a4 4 0 0 1 4 4v22H23a5 5 0 0 0-5 5V18h4Z' fill='%23f8fafc' fill-opacity='.92'/%3E%3Cpath d='M25 25h10M25 31h12M25 37h8' stroke='%234f46e5' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+    <link rel="apple-touch-icon"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='42' fill='%230b1020'/%3E%3Cpath d='M50 38h61a20 20 0 0 1 20 20v84H64a14 14 0 0 1-14-14V38Z' fill='%236366f1'/%3E%3Cpath d='M50 38h55a20 20 0 0 1 20 20v78H64a14 14 0 0 1-14-14V38Z' fill='%238b5cf6'/%3E%3Cpath d='M62 50h43a12 12 0 0 1 12 12v64H64a14 14 0 0 0-14 14V50h12Z' fill='%23f8fafc' fill-opacity='.92'/%3E%3Cpath d='M72 72h30M72 90h36M72 108h24' stroke='%234f46e5' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
     <link rel="manifest" href="{% url 'manifest' %}">
     <meta name="theme-color" content="#0b1020">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -76,12 +78,39 @@
             font-family: 'Inter', system-ui, sans-serif;
             background-color: #07091a;
             background-image:
+                linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
                 radial-gradient(900px 500px at 12% -10%, rgba(99, 102, 241, 0.18), transparent 60%),
                 radial-gradient(800px 480px at 100% 0%, rgba(168, 85, 247, 0.14), transparent 60%),
                 radial-gradient(700px 600px at 50% 110%, rgba(56, 189, 248, 0.10), transparent 60%);
+            background-size: 48px 48px, 48px 48px, auto, auto, auto;
             background-attachment: fixed;
             color: #e4e7f5;
             -webkit-font-smoothing: antialiased;
+        }
+
+        ::selection {
+            background: rgba(129, 140, 248, 0.35);
+            color: #fff;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #070914;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(139, 146, 184, 0.35);
+            border: 2px solid #070914;
+            border-radius: 9999px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(165, 180, 252, 0.55);
         }
 
         [x-cloak] {
@@ -90,12 +119,25 @@
 
         /* === Cards === */
         .card {
-            background: linear-gradient(180deg, rgba(20, 26, 56, 0.85), rgba(15, 19, 44, 0.85));
+            position: relative;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 34%),
+                linear-gradient(180deg, rgba(20, 26, 56, 0.88), rgba(15, 19, 44, 0.88));
             border: 1px solid rgba(99, 102, 241, 0.12);
             border-radius: 1rem;
             box-shadow: 0 10px 30px -12px rgba(2, 6, 23, 0.6);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            border-radius: inherit;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            mask-image: linear-gradient(to bottom, #000, transparent 55%);
         }
 
         .card-soft {
@@ -125,7 +167,10 @@
             white-space: nowrap;
         }
 
-        .btn:focus-visible {
+        .btn:focus-visible,
+        .nav-link:focus-visible,
+        a:focus-visible,
+        button:focus-visible {
             outline: none;
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.35);
         }
@@ -297,7 +342,36 @@
 
         .nav-link.active {
             color: #fff;
-            background: rgba(99, 102, 241, 0.18);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.22), rgba(217, 70, 239, 0.13));
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+        }
+
+        .brand-mark {
+            position: relative;
+            display: inline-flex;
+            height: 2.5rem;
+            width: 2.5rem;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.9rem;
+            color: #fff;
+            background:
+                radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.35), transparent 25%),
+                linear-gradient(135deg, #6366f1 0%, #8b5cf6 58%, #d946ef 100%);
+            box-shadow:
+                0 14px 30px -16px rgba(139, 92, 246, 0.95),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.20);
+        }
+
+        .brand-mark::after {
+            content: "";
+            position: absolute;
+            inset: -0.35rem;
+            z-index: -1;
+            border-radius: 1.2rem;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.45), rgba(217, 70, 239, 0.35));
+            filter: blur(14px);
+            opacity: 0.75;
         }
 
         /* === Misc === */
@@ -326,18 +400,23 @@
 </head>
 
 <body class="min-h-screen flex flex-col">
-    <nav class="sticky top-0 z-40 backdrop-blur-md bg-ink-950/70 border-b border-white/5"
+    <nav class="sticky top-0 z-40 backdrop-blur-xl bg-ink-950/75 border-b border-white/5 shadow-[0_18px_45px_-38px_rgba(0,0,0,0.9)]"
         x-data="{ open: false }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center gap-8">
                     <a href="{% url 'book_list' %}" class="flex items-center gap-3">
-                        <span class="relative inline-flex">
-                            <span class="absolute inset-0 rounded-xl bg-gradient-to-br from-brand-500 to-fuchsia-500 blur opacity-60"></span>
-                            <img src="{% static 'logo.jpeg' %}" alt="BookTracker" width="36" height="36"
-                                class="relative rounded-xl object-cover ring-1 ring-white/10" />
+                        <span class="brand-mark" aria-hidden="true">
+                            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none">
+                                <path d="M5 4.75A2.75 2.75 0 0 1 7.75 2H18a1 1 0 0 1 1 1v15.25a.75.75 0 0 1-.75.75H8a3 3 0 0 0-3 3V4.75Z"
+                                    fill="currentColor" fill-opacity=".92" />
+                                <path d="M5 19.75A2.75 2.75 0 0 1 7.75 17H19v3.25a.75.75 0 0 1-.75.75H7.75A2.75 2.75 0 0 1 5 19.75Z"
+                                    fill="currentColor" fill-opacity=".72" />
+                                <path d="M8.25 6.75h6.5M8.25 10h5M8.25 13.25h6.5"
+                                    stroke="#4f46e5" stroke-width="1.5" stroke-linecap="round" />
+                            </svg>
                         </span>
-                        <span class="font-bold text-lg gradient-text">BookTracker</span>
+                        <span class="font-bold text-lg tracking-tight gradient-text">BookTracker</span>
                     </a>
                     {% if user.is_authenticated %}
                     <div class="hidden md:flex items-center gap-1">
