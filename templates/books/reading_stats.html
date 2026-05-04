@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Estadísticas — BookTracker{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-8">
+    <header class="space-y-2">
+        <p class="text-sm text-brand-300 font-medium tracking-wide uppercase">Tu ritmo</p>
+        <h1 class="text-3xl sm:text-4xl font-bold text-white tracking-tight">Estadísticas de lectura</h1>
+        <p class="text-ink-300 text-sm sm:text-base">
+            Tiempo registrado en tus sesiones, comparado por día, semana y mes.
+        </p>
+    </header>
+
+    <!-- Hoy vs ayer -->
+    <section class="card p-6 sm:p-7 space-y-5">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-lg font-semibold text-white">Hoy</h2>
+                <p class="text-xs text-ink-400">Comparado con ayer</p>
+            </div>
+            <div class="h-9 w-9 rounded-xl bg-brand-500/15 text-brand-300 flex items-center justify-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 sm:gap-4">
+            <div class="card-soft p-4">
+                <p class="text-xs text-ink-400">Hoy</p>
+                <p class="mt-1 text-3xl font-bold gradient-text">{{ today_display }}</p>
+            </div>
+            <div class="card-soft p-4">
+                <p class="text-xs text-ink-400">Ayer</p>
+                <p class="mt-1 text-3xl font-bold text-white">{{ yesterday_display }}</p>
+            </div>
+        </div>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-3 border-t border-white/5">
+            <span class="text-sm text-ink-300">Diferencia</span>
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-sm font-semibold {{ day_delta_class }}">{{ day_delta_text }}</span>
+                {% if day_pct is not None %}
+                <span class="text-xs text-ink-400">({{ day_pct|floatformat:1 }}% respecto a ayer)</span>
+                {% else %}
+                <span class="text-xs text-ink-400">(sin base ayer)</span>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Semana -->
+    <section class="card p-6 sm:p-7 space-y-5">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-lg font-semibold text-white">Esta semana</h2>
+                <p class="text-xs text-ink-400">Lunes a domingo · {{ week_range_label }}</p>
+            </div>
+            <div class="h-9 w-9 rounded-xl bg-fuchsia-500/15 text-fuchsia-300 flex items-center justify-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 sm:gap-4">
+            <div class="card-soft p-4">
+                <p class="text-xs text-ink-400">Esta semana</p>
+                <p class="mt-1 text-3xl font-bold gradient-text">{{ week_current_display }}</p>
+            </div>
+            <div class="card-soft p-4">
+                <p class="text-xs text-ink-400">Semana anterior</p>
+                <p class="mt-1 text-3xl font-bold text-white">{{ week_previous_display }}</p>
+                <p class="text-[11px] text-ink-500 mt-0.5">{{ week_prev_range_label }}</p>
+            </div>
+        </div>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-3 border-t border-white/5">
+            <span class="text-sm text-ink-300">Diferencia semanal</span>
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-sm font-semibold {{ week_delta_class }}">{{ week_delta_text }}</span>
+                {% if week_pct is not None %}
+                <span class="text-xs text-ink-400">({{ week_pct|floatformat:1 }}%)</span>
+                {% else %}
+                <span class="text-xs text-ink-400">(sin base la semana anterior)</span>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Mes -->
+    <section class="card p-6 sm:p-7 space-y-5">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-lg font-semibold text-white">{{ month_label }}</h2>
+                <p class="text-xs text-ink-400">Comparado con {{ prev_month_label }}</p>
+            </div>
+            <div class="h-9 w-9 rounded-xl bg-emerald-500/15 text-emerald-300 flex items-center justify-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 3v18h18M7 14l3-3 4 4 5-5" />
+                </svg>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 sm:gap-4">
+            <div class="card-soft p-4">
+                <p class="text-xs text-ink-400">Mes actual</p>
+                <p class="mt-1 text-3xl font-bold gradient-text">{{ month_current_display }}</p>
+            </div>
+            <div class="card-soft p-4">
+                <p class="text-xs text-ink-400">Mes anterior</p>
+                <p class="mt-1 text-3xl font-bold text-white">{{ month_previous_display }}</p>
+            </div>
+        </div>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-3 border-t border-white/5">
+            <span class="text-sm text-ink-300">Diferencia mensual</span>
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-sm font-semibold {{ month_delta_class }}">{{ month_delta_text }}</span>
+                {% if month_pct is not None %}
+                <span class="text-xs text-ink-400">({{ month_pct|floatformat:1 }}%)</span>
+                {% else %}
+                <span class="text-xs text-ink-400">(sin base el mes anterior)</span>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <p class="text-center text-sm">
+        <a href="{% url 'book_list' %}" class="text-brand-300 hover:text-brand-200">← Volver a mis libros</a>
+    </p>
+</div>
+{% endblock %}

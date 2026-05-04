@@ -1,60 +1,55 @@
 {% extends 'base.html' %}
 
+{% block title %}Iniciar sesión — BookTracker{% endblock %}
+
 {% block content %}
-<div class="max-w-md mx-auto">
-    <div class="bg-gray-800 shadow sm:rounded-lg border border-gray-700">
-        <div class="px-4 py-5 sm:p-6">
-            <h3 class="text-2xl font-bold text-center text-white mb-6">Iniciar Sesión</h3>
-            <form method="POST" class="space-y-6">
-                {% csrf_token %}
+<div class="max-w-md mx-auto pt-6 sm:pt-12">
+    <div class="text-center mb-6">
+        <span class="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-brand-500/20 ring-1 ring-brand-400/30 text-brand-300">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 11c0-1.657 1.343-3 3-3s3 1.343 3 3-1.343 3-3 3-3-1.343-3-3zM6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2" />
+            </svg>
+        </span>
+        <h1 class="mt-3 text-2xl font-bold text-white">Bienvenido de vuelta</h1>
+        <p class="mt-1 text-sm text-ink-300">Inicia sesión para continuar con tu lectura.</p>
+    </div>
 
-                {% if form.non_field_errors %}
-                <div class="bg-red-800 text-red-100 p-3 rounded-md text-sm">
-                    {{ form.non_field_errors }}
-                </div>
-                {% endif %}
+    <div class="card p-6 sm:p-7">
+        <form method="POST" class="space-y-5">
+            {% csrf_token %}
 
-                <div>
-                    <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-300">
-                        Usuario
-                    </label>
-                    <div class="mt-1">
-                        <input type="text" name="username" id="{{ form.username.id_for_label }}"
-                            class="w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            required>
-                    </div>
-                    {% if form.username.errors %}
-                    <p class="mt-2 text-sm text-red-400">{{ form.username.errors.0 }}</p>
-                    {% endif %}
-                </div>
-
-                <div>
-                    <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-300">
-                        Contraseña
-                    </label>
-                    <div class="mt-1">
-                        <input type="password" name="password" id="{{ form.password.id_for_label }}"
-                            class="w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            required>
-                    </div>
-                    {% if form.password.errors %}
-                    <p class="mt-2 text-sm text-red-400">{{ form.password.errors.0 }}</p>
-                    {% endif %}
-                </div>
-
-                <button type="submit"
-                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Entrar
-                </button>
-            </form>
-
-            <div class="mt-6 text-center">
-                <p class="text-sm text-gray-400">
-                    ¿No tienes cuenta?
-                    <a href="{% url 'register' %}" class="text-indigo-400 hover:text-indigo-300">Regístrate aquí</a>
-                </p>
+            {% if form.non_field_errors %}
+            <div class="px-3 py-2 rounded-lg bg-red-500/10 border border-red-400/30 text-red-100 text-sm">
+                {{ form.non_field_errors }}
             </div>
-        </div>
+            {% endif %}
+
+            <div>
+                <label for="{{ form.username.id_for_label }}" class="form-label">Usuario</label>
+                <input type="text" name="username" id="{{ form.username.id_for_label }}" class="form-input"
+                    autocomplete="username" required>
+                {% if form.username.errors %}
+                <p class="field-error">{{ form.username.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.password.id_for_label }}" class="form-label">Contraseña</label>
+                <input type="password" name="password" id="{{ form.password.id_for_label }}" class="form-input"
+                    autocomplete="current-password" required>
+                {% if form.password.errors %}
+                <p class="field-error">{{ form.password.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-primary w-full">Entrar</button>
+        </form>
+
+        <p class="mt-6 text-center text-sm text-ink-300">
+            ¿No tienes cuenta?
+            <a href="{% url 'register' %}" class="text-brand-300 hover:text-brand-200 font-medium">Crea una</a>
+        </p>
     </div>
 </div>
 {% endblock %}

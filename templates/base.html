@@ -4,88 +4,417 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>{% block title %}BookTracker{% endblock %}</title>
     <link rel="icon" type="image/jpeg" href="{% static 'logo.jpeg' %}">
     <link rel="apple-touch-icon" href="{% static 'logo.jpeg' %}">
     <link rel="manifest" href="{% url 'manifest' %}">
-    <meta name="theme-color" content="#4f46e5">
+    <meta name="theme-color" content="#0b1020">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="BookTracker">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-
-        [x-cloak] {
-            display: none !important;
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,500;0,600;1,500&display=swap"
+        rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        serif: ['Lora', 'Georgia', 'serif'],
+                    },
                     colors: {
-                        gray: {
-                            900: '#111827',
-                            800: '#1f2937',
-                            700: '#374151',
+                        ink: {
+                            950: '#070914',
+                            900: '#0b1020',
+                            800: '#111733',
+                            700: '#1a2142',
+                            600: '#252d52',
+                            500: '#3b4170',
+                            400: '#5a608f',
+                            300: '#8b91b8',
+                            200: '#c2c7e0',
+                            100: '#e4e7f5',
+                        },
+                        brand: {
+                            50: '#eef0ff',
+                            100: '#dadffd',
+                            200: '#bcc3fb',
+                            300: '#959efa',
+                            400: '#7a82f7',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
                         }
-                    }
+                    },
+                    boxShadow: {
+                        glow: '0 0 0 1px rgba(99,102,241,0.25), 0 8px 24px -8px rgba(99,102,241,0.45)',
+                        card: '0 10px 30px -12px rgba(2,6,23,0.6)',
+                    },
                 }
             }
         }
     </script>
+    <style>
+        :root {
+            --bg-1: #07091a;
+            --bg-2: #0b1230;
+            --bg-3: #1a1247;
+        }
+
+        html,
+        body {
+            min-height: 100%;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: #07091a;
+            background-image:
+                radial-gradient(900px 500px at 12% -10%, rgba(99, 102, 241, 0.18), transparent 60%),
+                radial-gradient(800px 480px at 100% 0%, rgba(168, 85, 247, 0.14), transparent 60%),
+                radial-gradient(700px 600px at 50% 110%, rgba(56, 189, 248, 0.10), transparent 60%);
+            background-attachment: fixed;
+            color: #e4e7f5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        [x-cloak] {
+            display: none !important;
+        }
+
+        /* === Cards === */
+        .card {
+            background: linear-gradient(180deg, rgba(20, 26, 56, 0.85), rgba(15, 19, 44, 0.85));
+            border: 1px solid rgba(99, 102, 241, 0.12);
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px -12px rgba(2, 6, 23, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .card-soft {
+            background: rgba(20, 26, 56, 0.55);
+            border: 1px solid rgba(148, 163, 184, 0.10);
+            border-radius: 0.875rem;
+        }
+
+        .divider {
+            border-top: 1px solid rgba(148, 163, 184, 0.12);
+        }
+
+        /* === Buttons === */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.05rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: 0.625rem;
+            transition: transform .15s, box-shadow .15s, background-color .15s, color .15s, border-color .15s;
+            cursor: pointer;
+            border: 1px solid transparent;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .btn:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.35);
+        }
+
+        .btn-primary {
+            color: #fff;
+            background-image: linear-gradient(135deg, #6366f1 0%, #8b5cf6 60%, #d946ef 100%);
+            box-shadow: 0 8px 22px -10px rgba(139, 92, 246, 0.65);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 30px -12px rgba(139, 92, 246, 0.75);
+        }
+
+        .btn-secondary {
+            color: #c2c7e0;
+            background: rgba(148, 163, 184, 0.08);
+            border-color: rgba(148, 163, 184, 0.20);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(148, 163, 184, 0.16);
+            color: #fff;
+        }
+
+        .btn-ghost {
+            color: #c2c7e0;
+            background: transparent;
+        }
+
+        .btn-ghost:hover {
+            color: #fff;
+            background: rgba(148, 163, 184, 0.08);
+        }
+
+        .btn-danger {
+            color: #fecaca;
+            background: rgba(239, 68, 68, 0.12);
+            border-color: rgba(239, 68, 68, 0.25);
+        }
+
+        .btn-danger:hover {
+            color: #fff;
+            background: rgba(239, 68, 68, 0.25);
+        }
+
+        /* === Form inputs === */
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            background-color: rgba(7, 11, 32, 0.55);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            color: #e4e7f5;
+            border-radius: 0.625rem;
+            padding: 0.625rem 0.875rem;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            transition: border-color .15s, box-shadow .15s, background-color .15s;
+        }
+
+        .form-input::placeholder,
+        .form-textarea::placeholder {
+            color: #5a608f;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #818cf8;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+            background-color: rgba(7, 11, 32, 0.85);
+        }
+
+        .form-textarea {
+            min-height: 5.25rem;
+            resize: vertical;
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%238b91b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.85rem center;
+            padding-right: 2.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: #c2c7e0;
+            margin-bottom: 0.375rem;
+        }
+
+        .help-text {
+            font-size: 0.75rem;
+            color: #5a608f;
+            margin-top: 0.375rem;
+            line-height: 1.45;
+        }
+
+        .field-error {
+            font-size: 0.75rem;
+            color: #fca5a5;
+            margin-top: 0.375rem;
+        }
+
+        /* === Pills & badges === */
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.625rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            border-radius: 9999px;
+        }
+
+        .pill-pending {
+            background: rgba(148, 163, 184, 0.16);
+            color: #c2c7e0;
+        }
+
+        .pill-reading {
+            background: rgba(245, 158, 11, 0.18);
+            color: #fcd34d;
+        }
+
+        .pill-completed {
+            background: rgba(16, 185, 129, 0.18);
+            color: #6ee7b7;
+        }
+
+        /* === Progress bar === */
+        .progress-track {
+            background: rgba(148, 163, 184, 0.16);
+            border-radius: 9999px;
+            overflow: hidden;
+            height: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 9999px;
+            background-image: linear-gradient(90deg, #6366f1, #8b5cf6, #d946ef);
+            transition: width .5s ease;
+        }
+
+        /* === Nav link === */
+        .nav-link {
+            position: relative;
+            color: #c2c7e0;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 0.45rem 0.85rem;
+            border-radius: 0.5rem;
+            transition: color .15s, background-color .15s;
+        }
+
+        .nav-link:hover {
+            color: #fff;
+            background: rgba(148, 163, 184, 0.08);
+        }
+
+        .nav-link.active {
+            color: #fff;
+            background: rgba(99, 102, 241, 0.18);
+        }
+
+        /* === Misc === */
+        .gradient-text {
+            background-image: linear-gradient(120deg, #a5b4fc 0%, #c084fc 50%, #f0abfc 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .ring-soft {
+            box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.12);
+        }
+
+        /* Hide spinner on number inputs */
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
 </head>
 
-<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
-    <nav class="bg-gray-800 border-b border-gray-700">
+<body class="min-h-screen flex flex-col">
+    <nav class="sticky top-0 z-40 backdrop-blur-md bg-ink-950/70 border-b border-white/5"
+        x-data="{ open: false }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <div class="flex items-center">
-                    <a href="{% url 'book_list' %}" class="flex-shrink-0 flex items-center gap-2 text-indigo-500 font-bold text-xl">
-                        <img src="{% static 'logo.jpeg' %}" alt="BookTracker" width="36" height="36" class="rounded-lg object-cover" />
-                        <span>BookTracker</span>
+                <div class="flex items-center gap-8">
+                    <a href="{% url 'book_list' %}" class="flex items-center gap-3">
+                        <span class="relative inline-flex">
+                            <span class="absolute inset-0 rounded-xl bg-gradient-to-br from-brand-500 to-fuchsia-500 blur opacity-60"></span>
+                            <img src="{% static 'logo.jpeg' %}" alt="BookTracker" width="36" height="36"
+                                class="relative rounded-xl object-cover ring-1 ring-white/10" />
+                        </span>
+                        <span class="font-bold text-lg gradient-text">BookTracker</span>
                     </a>
                     {% if user.is_authenticated %}
-                    <div class="hidden md:block">
-                        <div class="ml-10 flex items-baseline space-x-4">
-                            <a href="{% url 'book_list' %}"
-                                class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Mis
-                                Libros</a>
-                            <a href="{% url 'add_book' %}"
-                                class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Agregar
-                                Libro</a>
-                        </div>
+                    <div class="hidden md:flex items-center gap-1">
+                        <a href="{% url 'book_list' %}"
+                            class="nav-link {% if request.resolver_match.url_name == 'book_list' %}active{% endif %}">
+                            Mis libros
+                        </a>
+                        <a href="{% url 'add_book' %}"
+                            class="nav-link {% if request.resolver_match.url_name == 'add_book' %}active{% endif %}">
+                            Agregar
+                        </a>
+                        <a href="{% url 'reading_stats' %}"
+                            class="nav-link {% if request.resolver_match.url_name == 'reading_stats' %}active{% endif %}">
+                            Estadísticas
+                        </a>
                     </div>
                     {% endif %}
                 </div>
+
                 {% if user.is_authenticated %}
-                <div class="flex items-center space-x-4">
-                    <span class="text-gray-400 text-sm">Hola, <span class="text-white font-medium">
-                            {{ user.username}}
-                        </span></span>
+                <div class="flex items-center gap-3">
+                    <div class="hidden sm:flex items-center gap-2 text-sm text-ink-300">
+                        <span class="hidden md:inline">Hola,</span>
+                        <span class="font-medium text-white">{{ user.username }}</span>
+                    </div>
                     <a href="{% url 'logout' %}"
-                        class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Cerrar
-                        Sesión</a>
+                        class="hidden md:inline-flex btn btn-secondary text-xs">Salir</a>
+                    <button type="button" @click="open = !open"
+                        class="md:hidden inline-flex items-center justify-center h-9 w-9 rounded-lg text-ink-200 hover:text-white hover:bg-white/5 transition"
+                        aria-label="Abrir menú">
+                        <svg x-show="!open" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <svg x-show="open" x-cloak class="w-5 h-5" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6l12 12M6 18L18 6" />
+                        </svg>
+                    </button>
                 </div>
                 {% endif %}
             </div>
+
+            {% if user.is_authenticated %}
+            <div x-show="open" x-cloak x-transition.opacity
+                class="md:hidden pb-4 pt-2 border-t border-white/5 flex flex-col gap-1">
+                <a href="{% url 'book_list' %}" class="nav-link {% if request.resolver_match.url_name == 'book_list' %}active{% endif %}">Mis libros</a>
+                <a href="{% url 'add_book' %}" class="nav-link {% if request.resolver_match.url_name == 'add_book' %}active{% endif %}">Agregar libro</a>
+                <a href="{% url 'reading_stats' %}" class="nav-link {% if request.resolver_match.url_name == 'reading_stats' %}active{% endif %}">Estadísticas</a>
+                <a href="{% url 'logout' %}" class="nav-link text-red-300">Cerrar sesión</a>
+            </div>
+            {% endif %}
         </div>
     </nav>
 
-    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {% if messages %}
-        <div class="mb-4">
+        <div class="mb-6 space-y-2">
             {% for message in messages %}
-            <div
-                class="p-4 rounded-md {% if message.tags == 'success' %}bg-green-800 text-green-100{% else %}bg-red-800 text-red-100{% endif %}">
-                {{ message }}
+            <div role="alert"
+                class="flex items-start gap-3 px-4 py-3 rounded-xl text-sm border backdrop-blur
+                {% if message.tags == 'success' %}bg-emerald-500/10 border-emerald-400/30 text-emerald-100
+                {% elif message.tags == 'error' %}bg-red-500/10 border-red-400/30 text-red-100
+                {% else %}bg-brand-500/10 border-brand-400/30 text-brand-100{% endif %}">
+                <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {% if message.tags == 'success' %}
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M5 13l4 4L19 7" />
+                    {% elif message.tags == 'error' %}
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    {% else %}
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    {% endif %}
+                </svg>
+                <span>{{ message }}</span>
             </div>
             {% endfor %}
         </div>
@@ -93,11 +422,9 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-gray-800 border-t border-gray-700 mt-auto">
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <p class="text-center text-gray-400 text-sm">
-                &copy; {% now "Y" %} BookTracker. Tu biblioteca personal.
-            </p>
+    <footer class="border-t border-white/5 mt-12">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-xs text-ink-400">
+            &copy; {% now "Y" %} BookTracker · Tu biblioteca personal.
         </div>
     </footer>
 </body>

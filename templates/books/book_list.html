@@ -1,142 +1,178 @@
 {% extends 'base.html' %}
 
+{% block title %}Mis libros — BookTracker{% endblock %}
+
 {% block content %}
-<div class="space-y-6">
-    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-        <h1 class="text-3xl font-bold text-white">Mis Libros</h1>
-        <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <!-- Search Bar -->
-            <form method="GET" class="flex-1 sm:flex-initial">
-                <div class="relative">
-                    <input type="text" name="q" value="{{ search_query }}" placeholder="Buscar por título o autor..."
-                        class="w-full sm:w-64 bg-gray-700 border-gray-600 text-white rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 pl-10 pr-4 py-2">
-                    <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+<div class="space-y-8">
+    <!-- Hero -->
+    <section class="relative overflow-hidden rounded-2xl card p-6 sm:p-8">
+        <div class="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-fuchsia-500/15 blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -left-16 w-72 h-72 rounded-full bg-brand-500/15 blur-3xl pointer-events-none"></div>
+        <div class="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+                <p class="text-sm text-ink-300">Tu biblioteca</p>
+                <h1 class="mt-1 text-3xl sm:text-4xl font-bold text-white tracking-tight">
+                    Hola, <span class="gradient-text">{{ user.username }}</span>
+                </h1>
+                <p class="mt-2 text-ink-300 text-sm sm:text-base">
+                    Sigue de cerca tu progreso, registra avances y descubre tu ritmo de lectura.
+                </p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <a href="{% url 'add_book' %}" class="btn btn-primary">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
-                </div>
-            </form>
-            <!-- Filter Tabs -->
-            <div class="flex space-x-2 bg-gray-800 p-1 rounded-lg">
-                <a href="{% url 'book_list' %}"
-                    class="px-4 py-2 rounded-md text-sm font-medium transition-colors {% if not current_filter %}bg-indigo-600 text-white{% else %}text-gray-400 hover:text-white{% endif %}">Todos</a>
-                <a href="?status=READING"
-                    class="px-4 py-2 rounded-md text-sm font-medium transition-colors {% if current_filter == 'READING' %}bg-indigo-600 text-white{% else %}text-gray-400 hover:text-white{% endif %}">Leyendo</a>
-                <a href="?status=PENDING"
-                    class="px-4 py-2 rounded-md text-sm font-medium transition-colors {% if current_filter == 'PENDING' %}bg-indigo-600 text-white{% else %}text-gray-400 hover:text-white{% endif %}">Pendientes</a>
-                <a href="?status=COMPLETED"
-                    class="px-4 py-2 rounded-md text-sm font-medium transition-colors {% if current_filter == 'COMPLETED' %}bg-indigo-600 text-white{% else %}text-gray-400 hover:text-white{% endif %}">Terminados</a>
+                    Nuevo libro
+                </a>
+                <a href="{% url 'reading_stats' %}" class="btn btn-secondary">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 3v18h18M7 14l3-3 4 4 5-5" />
+                    </svg>
+                    Estadísticas
+                </a>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <a href="{% url 'book_list' %}" class="block transform transition-transform hover:scale-105">
-            <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-lg p-6 shadow-lg cursor-pointer">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-indigo-200 text-sm font-medium">Total de Libros</p>
-                        <p class="text-4xl font-bold text-white mt-2">{{ total_books }}</p>
-                    </div>
-                    <div class="bg-indigo-500/30 rounded-full p-3">
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
-                            </path>
-                        </svg>
-                    </div>
+    <!-- Stats -->
+    <section class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <a href="{% url 'book_list' %}"
+            class="card p-5 group hover:-translate-y-0.5 transition-transform">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-xs uppercase tracking-wider text-ink-300">Total</p>
+                    <p class="text-3xl font-bold text-white mt-1">{{ total_books }}</p>
+                    <p class="text-xs text-ink-400 mt-1">libros en tu biblioteca</p>
+                </div>
+                <div class="h-10 w-10 rounded-xl bg-brand-500/15 text-brand-300 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
                 </div>
             </div>
         </a>
 
-        <a href="?status=COMPLETED" class="block transform transition-transform hover:scale-105">
-            <div class="bg-gradient-to-br from-green-600 to-green-800 rounded-lg p-6 shadow-lg cursor-pointer">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-green-200 text-sm font-medium">Libros Leídos</p>
-                        <p class="text-4xl font-bold text-white mt-2">{{ completed_books }}</p>
-                    </div>
-                    <div class="bg-green-500/30 rounded-full p-3">
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
+        <a href="?status=COMPLETED" class="card p-5 group hover:-translate-y-0.5 transition-transform">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-xs uppercase tracking-wider text-emerald-300">Completados</p>
+                    <p class="text-3xl font-bold text-white mt-1">{{ completed_books }}</p>
+                    <p class="text-xs text-ink-400 mt-1">libros terminados</p>
+                </div>
+                <div class="h-10 w-10 rounded-xl bg-emerald-500/15 text-emerald-300 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                 </div>
             </div>
         </a>
 
-        <a href="?status=READING" class="block transform transition-transform hover:scale-105">
-            <div class="bg-gradient-to-br from-yellow-600 to-yellow-800 rounded-lg p-6 shadow-lg cursor-pointer">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-yellow-200 text-sm font-medium">Leyendo Ahora</p>
-                        <p class="text-4xl font-bold text-white mt-2">{{ reading_books }}</p>
-                    </div>
-                    <div class="bg-yellow-500/30 rounded-full p-3">
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
-                    </div>
+        <a href="?status=READING" class="card p-5 group hover:-translate-y-0.5 transition-transform">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-xs uppercase tracking-wider text-amber-300">En curso</p>
+                    <p class="text-3xl font-bold text-white mt-1">{{ reading_books }}</p>
+                    <p class="text-xs text-ink-400 mt-1">leyendo ahora mismo</p>
+                </div>
+                <div class="h-10 w-10 rounded-xl bg-amber-500/15 text-amber-300 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
                 </div>
             </div>
         </a>
-    </div>
+    </section>
 
+    <!-- Toolbar -->
+    <section class="card p-4 sm:p-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <form method="GET" class="flex-1 max-w-xl">
+            <div class="relative">
+                <input type="text" name="q" value="{{ search_query }}"
+                    placeholder="Buscar por título o autor…" class="form-input pl-10" />
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-ink-400" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                {% if current_filter %}<input type="hidden" name="status" value="{{ current_filter }}" />{% endif %}
+            </div>
+        </form>
+
+        <div class="flex flex-wrap gap-1 p-1 bg-white/5 rounded-xl ring-soft self-start lg:self-auto">
+            {% with q=search_query %}
+            <a href="{% url 'book_list' %}{% if q %}?q={{ q }}{% endif %}"
+                class="px-3 py-1.5 rounded-lg text-sm font-medium transition
+                {% if not current_filter %}bg-gradient-to-r from-brand-600 to-fuchsia-600 text-white shadow{% else %}text-ink-300 hover:text-white{% endif %}">
+                Todos
+            </a>
+            <a href="?status=READING{% if q %}&q={{ q }}{% endif %}"
+                class="px-3 py-1.5 rounded-lg text-sm font-medium transition
+                {% if current_filter == 'READING' %}bg-amber-500/20 text-amber-100{% else %}text-ink-300 hover:text-white{% endif %}">
+                Leyendo
+            </a>
+            <a href="?status=PENDING{% if q %}&q={{ q }}{% endif %}"
+                class="px-3 py-1.5 rounded-lg text-sm font-medium transition
+                {% if current_filter == 'PENDING' %}bg-white/10 text-white{% else %}text-ink-300 hover:text-white{% endif %}">
+                Pendientes
+            </a>
+            <a href="?status=COMPLETED{% if q %}&q={{ q }}{% endif %}"
+                class="px-3 py-1.5 rounded-lg text-sm font-medium transition
+                {% if current_filter == 'COMPLETED' %}bg-emerald-500/20 text-emerald-100{% else %}text-ink-300 hover:text-white{% endif %}">
+                Terminados
+            </a>
+            {% endwith %}
+        </div>
+    </section>
+
+    <!-- Listings -->
     {% regroup books by category as category_list %}
-
     {% for category in category_list %}
-    <div class="mb-8">
-        <h2 class="text-xl font-bold text-indigo-400 mb-4 border-b border-gray-700 pb-2">
-            {% if category.grouper %}{{ category.grouper.name }}{% else %}Sin Categoría{% endif %}
-        </h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <section class="space-y-4">
+        <div class="flex items-baseline justify-between gap-4">
+            <h2 class="text-base sm:text-lg font-semibold text-white">
+                {% if category.grouper %}{{ category.grouper.name }}{% else %}Sin categoría{% endif %}
+            </h2>
+            <span class="text-xs text-ink-400">{{ category.list|length }} libro{{ category.list|length|pluralize:"s" }}</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {% for book in category.list %}
-            <a href="{% url 'book_detail' book.pk %}" class="block group">
-                <div
-                    class="bg-gray-800 rounded-lg shadow-lg overflow-hidden border border-gray-700 transition-transform transform group-hover:-translate-y-1 group-hover:shadow-2xl">
-                    <div class="p-6">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                    {% if book.status == 'READING' %}bg-yellow-900 text-yellow-200
-                                    {% elif book.status == 'COMPLETED' %}bg-green-900 text-green-200
-                                    {% else %}bg-gray-700 text-gray-300{% endif %}">
-                                    {{ book.get_status_display }}
-                                </span>
-                                <h3
-                                    class="mt-2 text-xl font-semibold text-white group-hover:text-indigo-400 transition-colors">
-                                    {{ book.title }}</h3>
-                                <p class="text-sm text-gray-400">{{ book.author }}</p>
+            <a href="{% url 'book_detail' book.pk %}"
+                class="card p-0 overflow-hidden group hover:-translate-y-0.5 transition-transform">
+                <div class="flex gap-4 p-4">
+                    {% if book.cover_url %}
+                    <img src="{{ book.cover_url }}" alt="{{ book.title }}"
+                        class="h-28 w-20 rounded-lg object-cover ring-1 ring-white/10 shadow-md flex-shrink-0" />
+                    {% else %}
+                    <div class="h-28 w-20 rounded-lg bg-gradient-to-br from-brand-700/60 to-fuchsia-700/40 ring-1 ring-white/10 flex items-center justify-center text-white/70 flex-shrink-0">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                    {% endif %}
+                    <div class="min-w-0 flex-1 flex flex-col">
+                        <span class="pill self-start
+                            {% if book.status == 'READING' %}pill-reading
+                            {% elif book.status == 'COMPLETED' %}pill-completed
+                            {% else %}pill-pending{% endif %}">
+                            {{ book.get_status_display }}
+                        </span>
+                        <h3 class="mt-2 font-serif text-lg font-semibold text-white leading-snug group-hover:text-brand-300 transition-colors line-clamp-2">
+                            {{ book.title }}
+                        </h3>
+                        <p class="text-sm text-ink-300 truncate">{{ book.author }}</p>
+                        <div class="mt-auto pt-3">
+                            <div class="flex items-center justify-between text-xs text-ink-400 mb-1">
+                                <span>{{ book.pages_read }} / {{ book.total_pages }} pág.</span>
+                                <span class="font-semibold text-white">{{ book.progress_percentage }}%</span>
                             </div>
-                            {% if book.cover_url %}
-                            <img src="{{ book.cover_url }}" alt="{{ book.title }}"
-                                class="h-16 w-12 object-cover rounded shadow-sm">
-                            {% else %}
-                            <div class="h-16 w-12 bg-gray-700 rounded flex items-center justify-center text-gray-500">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
-                                    </path>
-                                </svg>
-                            </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="mt-6">
-                            <div class="flex justify-between text-sm text-gray-400 mb-1">
-                                <span>Progreso</span>
-                                <span>{{ book.progress_percentage }}%</span>
-                            </div>
-                            <div class="w-full bg-gray-700 rounded-full h-2.5">
-                                <div class="bg-indigo-600 h-2.5 rounded-full"
-                                    style="width: {{ book.progress_percentage }}%"></div>
-                            </div>
-                            <div class="mt-2 text-xs text-gray-500 text-right">
-                                {{ book.pages_read }} / {{ book.total_pages }} páginas
+                            <div class="progress-track">
+                                <div class="progress-fill" style="width: {{ book.progress_percentage }}%"></div>
                             </div>
                         </div>
                     </div>
@@ -144,23 +180,32 @@
             </a>
             {% endfor %}
         </div>
-    </div>
+    </section>
     {% empty %}
-    <div class="col-span-full text-center py-12">
-        <svg class="mx-auto h-12 w-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
-            </path>
-        </svg>
-        <h3 class="mt-2 text-sm font-medium text-gray-300">No hay libros</h3>
-        <p class="mt-1 text-sm text-gray-500">Comienza agregando un libro a tu colección.</p>
-        <div class="mt-6">
-            <a href="{% url 'add_book' %}"
-                class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                Agregar Libro
-            </a>
+    <section class="card p-10 text-center">
+        <div class="mx-auto h-16 w-16 rounded-2xl bg-brand-500/15 text-brand-300 flex items-center justify-center">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
         </div>
-    </div>
+        <h3 class="mt-4 text-lg font-semibold text-white">
+            {% if search_query or current_filter %}Sin resultados{% else %}Tu biblioteca está vacía{% endif %}
+        </h3>
+        <p class="mt-1 text-sm text-ink-300 max-w-md mx-auto">
+            {% if search_query or current_filter %}
+            Prueba con otro término o limpia los filtros para ver todos tus libros.
+            {% else %}
+            Comienza agregando un libro para empezar a registrar tu lectura.
+            {% endif %}
+        </p>
+        <div class="mt-6 flex justify-center gap-2">
+            {% if search_query or current_filter %}
+            <a href="{% url 'book_list' %}" class="btn btn-secondary">Limpiar filtros</a>
+            {% endif %}
+            <a href="{% url 'add_book' %}" class="btn btn-primary">Agregar libro</a>
+        </div>
+    </section>
     {% endfor %}
 </div>
 {% endblock %}

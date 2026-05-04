@@ -1,14 +1,182 @@
+from calendar import monthrange
+from datetime import date, timedelta
+from decimal import Decimal
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.contrib import messages
 from django.db import models
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Sum
+from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import Book, ReadingSession, Category
 from .forms import BookForm, ReadingSessionForm, CategoryForm
+
+
+def _format_reading_minutes(minutes):
+    """Format total minutes like Book.total_time_read (m / h m)."""
+    if minutes is None:
+        m = Decimal('0')
+    else:
+        m = Decimal(str(minutes))
+    if m == 0:
+        return '0m'
+
+    def fmt_mins(x):
+        x = x.normalize()
+        if x == x.to_integral():
+            return str(int(x))
+        return format(x, 'f').rstrip('0').rstrip('.')
+
+    hours = int(m // 60)
+    mins = m % 60
+    if hours > 0:
+        return f'{hours}h {fmt_mins(mins)}m'
+    return f'{fmt_mins(mins)}m'
+
+
+def _sum_minutes_for_user(user, start_d, end_d):
+    total = ReadingSession.objects.filter(
+        book__user=user,
+        date__gte=start_d,
+        date__lte=end_d,
+    ).aggregate(t=Sum('duration_minutes'))['t']
+    if total is None:
+        return Decimal('0')
+    return Decimal(str(total))
+
+
+def _pct_change(current, previous):
+    if previous <= 0:
+        return None
+    return float((current - previous) / previous * 100)
+
+
+def _signed_delta_display(delta_minutes):
+    if delta_minutes == 0:
+        return 'sin cambio', 'text-gray-400'
+    sign = '+' if delta_minutes > 0 else ''
+    label = f'{sign}{_format_reading_minutes(abs(delta_minutes))}'
+    if delta_minutes > 0:
+        return label, 'text-green-400'
+    return label, 'text-red-400'
+
+
+_MESES = (
+    '',
+    'enero',
+    'febrero',
+    'marzo',
+    'abril',
+    'mayo',
+    'junio',
+    'julio',
+    'agosto',
+    'septiembre',
+    'octubre',
+    'noviembre',
+    'diciembre',
+)
+
+_MESES_CORTO = (
+    '',
+    'ene',
+    'feb',
+    'mar',
+    'abr',
+    'may',
+    'jun',
+    'jul',
+    'ago',
+    'sep',
+    'oct',
+    'nov',
+    'dic',
+)
+
+
+def _month_label_es(d: date) -> str:
+    return f'{_MESES[d.month]} {d.year}'.capitalize()
+
+
+def _date_range_label_es(start: date, end: date) -> str:
+    if start == end:
+        return f'{start.day} {_MESES_CORTO[start.month]} {start.year}'
+    if start.year == end.year and start.month == end.month:
+        return f'{start.day}–{end.day} {_MESES_CORTO[end.month]} {end.year}'
+    if start.year == end.year:
+        return f'{start.day} {_MESES_CORTO[start.month]} – {end.day} {_MESES_CORTO[end.month]} {end.year}'
+    return f'{start.day} {_MESES_CORTO[start.month]} {start.year} – {end.day} {_MESES_CORTO[end.month]} {end.year}'
+
+
+@login_required
+def reading_stats(request):
+    today = timezone.localdate()
+    yesterday = today - timedelta(days=1)
+
+    monday_this = today - timedelta(days=today.weekday())
+    sunday_this = monday_this + timedelta(days=6)
+    monday_prev = monday_this - timedelta(days=7)
+    sunday_prev = monday_this - timedelta(days=1)
+
+    first_this_month = today.replace(day=1)
+    _, last_day_m = monthrange(today.year, today.month)
+    last_this_month = today.replace(day=last_day_m)
+
+    if first_this_month.month == 1:
+        prev_m_year = first_this_month.year - 1
+        prev_m_month = 12
+    else:
+        prev_m_year = first_this_month.year
+        prev_m_month = first_this_month.month - 1
+
+    first_prev_month = date(prev_m_year, prev_m_month, 1)
+    _, last_prev_m = monthrange(prev_m_year, prev_m_month)
+    last_prev_month = date(prev_m_year, prev_m_month, last_prev_m)
+
+    today_m = _sum_minutes_for_user(request.user, today, today)
+    yesterday_m = _sum_minutes_for_user(request.user, yesterday, yesterday)
+    week_m = _sum_minutes_for_user(request.user, monday_this, sunday_this)
+    week_prev_m = _sum_minutes_for_user(request.user, monday_prev, sunday_prev)
+    month_m = _sum_minutes_for_user(request.user, first_this_month, last_this_month)
+    month_prev_m = _sum_minutes_for_user(request.user, first_prev_month, last_prev_month)
+
+    day_delta = today_m - yesterday_m
+    week_delta = week_m - week_prev_m
+    month_delta = month_m - month_prev_m
+
+    day_delta_text, day_delta_class = _signed_delta_display(day_delta)
+    week_delta_text, week_delta_class = _signed_delta_display(week_delta)
+    month_delta_text, month_delta_class = _signed_delta_display(month_delta)
+
+    context = {
+        'today_display': _format_reading_minutes(today_m),
+        'yesterday_display': _format_reading_minutes(yesterday_m),
+        'day_delta_text': day_delta_text,
+        'day_delta_class': day_delta_class,
+        'day_pct': _pct_change(today_m, yesterday_m),
+
+        'week_current_display': _format_reading_minutes(week_m),
+        'week_previous_display': _format_reading_minutes(week_prev_m),
+        'week_delta_text': week_delta_text,
+        'week_delta_class': week_delta_class,
+        'week_pct': _pct_change(week_m, week_prev_m),
+        'week_range_label': _date_range_label_es(monday_this, sunday_this),
+        'week_prev_range_label': _date_range_label_es(monday_prev, sunday_prev),
+
+        'month_current_display': _format_reading_minutes(month_m),
+        'month_previous_display': _format_reading_minutes(month_prev_m),
+        'month_delta_text': month_delta_text,
+        'month_delta_class': month_delta_class,
+        'month_pct': _pct_change(month_m, month_prev_m),
+        'month_label': _month_label_es(first_this_month),
+        'prev_month_label': _month_label_es(first_prev_month),
+    }
+    return render(request, 'books/reading_stats.html', context)
+
 
 def register(request):
     if request.user.is_authenticated:
